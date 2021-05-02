@@ -1,18 +1,24 @@
 <div class="main-content">
     <div class="section-content section-content-p30">
+        <h4>Category: {{currentCategoryName}}</h4>
+        <hr>
         <div class="container-fluid">
             <div class="row">
 
                 <!-- loop over the products list-->
                 <div *ngFor="let prod of products" class="col-md-3">
                     <div class="product-box">
-                        <img src ="{{prod.imageUrl}}" class="img-responsive"/>
+                        <img src="{{prod.imageUrl}}" class="img-responsive" />
                         <h1>{{ prod.name }}</h1>
                         <div class="price">{{ prod.unitPrice | currency:'USD' }}</div>
                         <a href="#" class="primary-btn">Add to cart</a>
                     </div>
+
                 </div>
-                
+                <!-- if products are empty then i wanna display a message to the user '?' gaurds against null and undefined values-->
+                <div *ngIf="products?.length == 0" class="alert alert-warning col-md-12" role="alert">
+                    No products Found!
+                </div>
             </div>
         </div>
     </div>
