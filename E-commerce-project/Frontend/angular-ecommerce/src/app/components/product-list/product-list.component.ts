@@ -25,7 +25,7 @@ export class ProductListComponent implements OnInit {
   thePageSize: number = 5;
   theTotalElements: number = 0;
 
-
+  previousKeyword: string = "";
   ngOnInit(): void {
     this.route.paramMap.subscribe(() => {
       this.listProducts();
@@ -43,15 +43,25 @@ export class ProductListComponent implements OnInit {
 
   }
   handleSearchProducts() {
-    
     const theKeyword: string = this.route.snapshot.paramMap.get('keyword') as string; 
+    //if we have different keyword than the previous keyword 
+    //then set the page number to 1
+    
+    if( this.previousKeyword != theKeyword){
+        this.thePageNumber=1;
+    }
+    this.previousKeyword = theKeyword;
+
+    console.log(`keyword=${theKeyword} , thePageNumber=${this.thePageNumber}`);
+
+    
     
     //now get the products for given keyword
-    this.productService.searchProducts(theKeyword).subscribe(
-      data => {
-        this.products = data;
-      }
-    )
+    this.productService.searchProductsPaginate(this.thePageNumber-1,
+                                              this.thePageSize,
+                                              theKeyword).subscribe(
+      this.processResult()
+    );
   }
 
   handleListProducts() {
@@ -97,6 +107,12 @@ export class ProductListComponent implements OnInit {
       this.thePageSize = data.page.size;
       this.theTotalElements = data.page.totalElements;
     };
+  }
+
+  updatePageSize(newPageSize: number){
+    this.thePageSize=newPageSize;
+    this.thePageNumber=1;
+    this.listProducts();
   }
 
 }
