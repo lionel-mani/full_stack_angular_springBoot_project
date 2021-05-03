@@ -16,8 +16,14 @@ export class ProductListComponent implements OnInit {
     private route: ActivatedRoute) { }
 
   currentCategoryId: number = 1;
+  previousCategoryId: number = 1;
   currentCategoryName: string = "Books";
   searchMode: boolean = false;
+
+  //new props for pagination
+  thePageNumber: number = 1;
+  thePageSize: number = 5;
+  theTotalElements: number = 0;
 
 
   ngOnInit(): void {
@@ -59,14 +65,38 @@ export class ProductListComponent implements OnInit {
     }
     else {
       this.currentCategoryId = 1;
-      this.currentCategoryName = "Books";
+      //this.currentCategoryName = "Books";
     }
+
+    //check if we have a different category id then the previous
+    // notte: angular will reuse a component if it is currently being viewed
+
+    //if we have a diff category id then prev then reset the page number back to 1
+    if(this.previousCategoryId != this.currentCategoryId){
+      this.thePageNumber=1;
+    }
+    this.previousCategoryId=this.currentCategoryId;
+    console.log(`current category id=${this.currentCategoryId} ::: prev category id=${this.previousCategoryId} ::: current page number=${this.thePageNumber}`);
+
+    console.log(`current page num=${this.thePageNumber} ::: pagesize=${this.thePageSize} ::: tot elem=${this.theTotalElements}`);
+
+
+
     //now get the products for given category id
-    this.productService.getProductList(this.currentCategoryId).subscribe(
-      data => {
-        this.products = data;
-      }
-    )
+    this.productService.getProductsListPaginate(this.thePageNumber - 1,
+                                                this.thePageSize,
+                                                this.currentCategoryId)
+                                                .subscribe(
+              this.processResult()
+    );
+  }
+  processResult(){
+    return (data:any) => {
+      this.products = data._embedded.products;
+      this.thePageNumber = data.page.number + 1;
+      this.thePageSize = data.page.size;
+      this.theTotalElements = data.page.totalElements;
+    };
   }
 
 }
